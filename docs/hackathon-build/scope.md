@@ -12,7 +12,7 @@ Deliver a focused proof of concept that demonstrates Midnight's dual-state model
 
 - Create an age-eligibility proof from private local input
 - Show the public receipt without retaining the birth year
-- Copy and verify a public verification link
+- Copy and authenticate a local receipt link within the current session
 - Keep a local activity log containing only public proof data
 - Compile a Compact contract that writes only the public receipt to the ledger
 - Test eligibility, privacy boundaries and verification-link parsing

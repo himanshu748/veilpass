@@ -26,11 +26,11 @@ The private inputs stay with the prover. Only the policy result, policy identifi
 - A conversion-focused landing page that explains the privacy boundary before asking for a proof
 - A responsive React interface for creating an age-eligibility proof
 - An honest Local proof mode that mirrors the Compact policy without retaining the birth year
-- A shareable public verification-link format
-- A verification screen that parses only public receipt fields
-- A session activity log containing no private credential data
+- A local receipt-link format that contains only public fields
+- A fail-closed verifier backed by a trusted in-memory receipt registry
+- An in-memory activity log containing no private credential data
 - A Compact contract with a private credential witness and public receipt ledger
-- Four unit tests covering age boundaries, privacy leakage and link parsing
+- Eight tests covering age boundaries, privacy leakage, forged links and policy collisions
 - A production Vite build
 
 ## Privacy Boundary
@@ -42,13 +42,22 @@ The private inputs stay with the prover. Only the policy result, policy identifi
 | Credential payload | Issuer-verification result |
 |  | Proof identifier and timestamp |
 
-The browser demo never writes a birth year or nonce into its public proof object, verification link or session activity log. The Compact circuit follows the same separation: `getPrivateCredential()` supplies private witness data while `proofs` stores only `ProofReceipt` values.
+The browser demo never writes a birth year or nonce into its public proof object, receipt link or in-memory activity log. The Compact circuit follows the same separation: `getPrivateCredential()` supplies private witness data while `proofs` stores only `ProofReceipt` values.
+
+## Security Model
+
+Local proof mode does not pretend that a formatted URL is a cryptographic proof. A receipt is accepted only when its identifier and every disclosed field match a record sealed in the current in-memory session. Fabricated, modified, duplicated-field and cross-session receipts fail closed.
+
+The Compact contract derives each proof identifier from the private credential, public policy inputs and `policyId`. Two policies evaluated against the same credential therefore remain distinct ledger entries.
+
+Production trust requires Midnight ledger reads and proof verification. The local registry is a transparent prototype boundary, not a replacement for that network integration.
 
 ## Project Structure
 
 ```text
 veilpass/
 ├── contract/src/veilpass.compact       # Compact privacy contract
+├── contract/src/veilpass.test.ts        # Ledger policy-collision regression test
 ├── docs/hackathon-build/               # Scope, spec, thesis and build journal
 ├── public/veilpass-mark.png             # Generated brand asset
 ├── src/components/                     # Focused product UI components
@@ -71,9 +80,11 @@ Open `http://127.0.0.1:5173`.
 To exercise the complete flow:
 
 1. Enter a birth year and create an eligibility proof.
-2. Copy the verification link.
-3. Open Verify and paste the link.
+2. Copy the local receipt link.
+3. Open Verify without refreshing and paste the link.
 4. Open Activity and confirm that no private credential fields appear.
+
+Refreshing clears the trusted receipt registry. A receipt from an earlier or different session is intentionally rejected in local proof mode.
 
 ## Compile the Midnight Contract
 
@@ -118,7 +129,7 @@ Midnight's current official examples use Compact 0.31.x with Midnight.js 4.1.x. 
 
 - The browser receipt is a local product simulation, not a cryptographic proof.
 - The issuer is simulated as trusted. No production credential issuer is connected.
-- Verification confirms the VeilPass v1 public-link structure, not an on-chain transaction.
+- Verification authenticates only against the current in-memory receipt registry and rejects cross-session links.
 - The age policy uses the UTC calendar year rather than a full date of birth.
 - The project has not been deployed to Midnight Preprod.
 

@@ -11,17 +11,6 @@ import { VerifyPanel } from './components/VerifyPanel'
 import { createEligibilityProof } from './lib/proof'
 import type { AppView, ProofState, PublicProof } from './types'
 
-const STORAGE_KEY = 'veilpass:public-proofs:v1'
-
-const readPublicProofs = (): PublicProof[] => {
-  try {
-    const stored = sessionStorage.getItem(STORAGE_KEY)
-    return stored ? JSON.parse(stored) : []
-  } catch {
-    return []
-  }
-}
-
 function NotFound() {
   return (
     <main className="not-found">
@@ -41,12 +30,8 @@ function App() {
   const [birthYear, setBirthYear] = useState('1998')
   const [proofState, setProofState] = useState<ProofState>('idle')
   const [proof, setProof] = useState<PublicProof | null>(null)
-  const [proofs, setProofs] = useState<PublicProof[]>(readPublicProofs)
+  const [proofs, setProofs] = useState<PublicProof[]>([])
   const [copyStatus, setCopyStatus] = useState<'idle' | 'copied' | 'error'>('idle')
-
-  useEffect(() => {
-    sessionStorage.setItem(STORAGE_KEY, JSON.stringify(proofs))
-  }, [proofs])
 
   useEffect(() => {
     const fromHash = window.location.hash.replace('#', '') as AppView
@@ -72,6 +57,7 @@ function App() {
   const changeView = (next: AppView) => {
     setView(next)
     window.history.replaceState(null, '', `#${next}`)
+    window.scrollTo({ top: 0, behavior: 'auto' })
   }
 
   const scrollToSection = (id: string) => {
@@ -137,12 +123,12 @@ function App() {
           <section className="hero-section section-shell" aria-labelledby="hero-heading">
             <div className="hero-copy">
               <h1 id="hero-heading">Prove eligibility without giving away identity.</h1>
-              <p>Turn a private credential into a shareable yes or no receipt. Your birth year stays on this device.</p>
+              <p>Turn a private credential into a locally sealed yes or no receipt. Your birth year stays on this device.</p>
               <div className="hero-actions">
                 <button className="primary-action hero-primary" type="button" onClick={startProof}><Icon name="shield" />Create a private proof</button>
                 <button className="text-action" type="button" onClick={() => scrollToSection('how-it-works')}>See how it works <Icon name="arrowRight" /></button>
               </div>
-              <p className="proof-signal"><Icon name="shield" />Compact 0.31.1 <span>·</span> 1 compiled circuit <span>·</span> 4 privacy tests</p>
+              <p className="proof-signal"><Icon name="shield" />Compact 0.31.1 <span>·</span> 1 compiled circuit <span>·</span> 8 security and privacy tests</p>
             </div>
 
             <div className="hero-aperture" aria-label="Private fields are converted into a public proof receipt">
@@ -186,7 +172,7 @@ function App() {
         </main>
       )}
 
-      {view === 'verify' && <div id="main-content"><VerifyPanel /></div>}
+      {view === 'verify' && <div id="main-content"><VerifyPanel proofs={proofs} /></div>}
       {view === 'activity' && <div id="main-content"><ActivityPanel proofs={proofs} onCreate={startProof} /></div>}
     </div>
   )
