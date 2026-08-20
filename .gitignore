@@ -3,7 +3,13 @@ dist/
 .DS_Store
 .env
 .env.*
-contract/src/managed/
+contract/src/managed/*
+!contract/src/managed/veilpass/
+contract/src/managed/veilpass/*
+!contract/src/managed/veilpass/contract/
+contract/src/managed/veilpass/contract/*
+!contract/src/managed/veilpass/contract/index.js
+!contract/src/managed/veilpass/contract/index.d.ts
 coverage/
 work/qa/
 work/

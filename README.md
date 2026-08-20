@@ -101,7 +101,7 @@ Expected result:
 Compiling 1 circuits:
 ```
 
-Generated contract artifacts are written to `contract/src/managed/veilpass/` and intentionally ignored by Git.
+Generated contract artifacts are written to `contract/src/managed/veilpass/`. The JavaScript and TypeScript contract bindings used by the regression test are committed, while proving keys, verification keys and intermediate compiler artifacts remain ignored.
 
 ## Verify the Build
 
