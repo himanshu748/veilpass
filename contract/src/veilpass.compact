@@ -1,0 +1,62 @@
+// SPDX-License-Identifier: Apache-2.0
+pragma language_version >= 0.22 && <= 0.23;
+
+import CompactStandardLibrary;
+
+// Private credential data is supplied by the user's local private-state provider.
+// Only the boolean outcome, policy identifier and issuer verification state are public.
+struct PrivateCredential {
+    birthYear: Uint<16>;
+    issuerVerified: Boolean;
+    nonce: Bytes<32>;
+}
+
+export struct ProofReceipt {
+    eligible: Boolean;
+    policyId: Uint<16>;
+    issuerVerified: Boolean;
+}
+
+export new type ProofId = Bytes<32>;
+
+export ledger proofs: Map<ProofId, ProofReceipt>;
+
+witness getPrivateCredential(): PrivateCredential;
+
+export pure circuit deriveProofId(
+    credential: PrivateCredential,
+    currentYear: Uint<16>,
+    minimumAge: Uint<16>
+): ProofId {
+    const birthYearHash = persistentHash<Uint<16>>(credential.birthYear);
+    return persistentHash<[Bytes<17>, Bytes<32>, Bytes<32>, Uint<16>, Uint<16>]>([
+        "veilpass:proof:v1",
+        birthYearHash,
+        credential.nonce,
+        currentYear,
+        minimumAge
+    ]) as ProofId;
+}
+
+export circuit createEligibilityProof(
+    currentYear: Uint<16>,
+    minimumAge: Uint<16>,
+    policyId: Uint<16>
+): [] {
+    assert(minimumAge > 0 && minimumAge <= 125, "Minimum age is out of range");
+    assert(currentYear >= minimumAge, "Current year is out of range");
+
+    const credential = getPrivateCredential();
+    assert(credential.birthYear <= currentYear, "Birth year cannot be in the future");
+
+    const cutoffYear = currentYear - minimumAge;
+    const eligible = credential.issuerVerified && credential.birthYear <= cutoffYear;
+    const proofId = deriveProofId(credential, currentYear, minimumAge);
+    const receipt = ProofReceipt {
+        eligible: eligible,
+        policyId: policyId,
+        issuerVerified: credential.issuerVerified
+    };
+
+    proofs.insert(disclose(proofId), disclose(receipt));
+}
