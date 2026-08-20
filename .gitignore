@@ -1,0 +1,22 @@
+node_modules/
+dist/
+.DS_Store
+.env
+.env.*
+contract/src/managed/
+coverage/
+work/qa/
+work/
+videos/
+videos/veilpass-demo/.media/
+videos/veilpass-demo/assets/voice/
+videos/veilpass-demo/node_modules/
+videos/veilpass-demo/renders/
+videos/veilpass-demo/snapshots/
+outputs/*.inspect.ndjson
+*.tsbuildinfo
+vite.config.js
+vite.config.d.ts
+
+# Local Netlify folder
+.netlify
