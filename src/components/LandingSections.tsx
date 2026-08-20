@@ -33,14 +33,14 @@ const steps = [
   {
     icon: 'send' as IconName,
     title: 'Share the minimum',
-    body: 'The verifier receives the policy, result, issuer status and proof ID.',
+    body: 'The verifier matches public fields against a sealed record from this session.',
   },
 ]
 
 const evidence = [
   { icon: 'code' as IconName, label: 'Compact contract', value: '0.31.1' },
   { icon: 'shield' as IconName, label: 'Compiled circuit', value: '1' },
-  { icon: 'check' as IconName, label: 'Privacy tests', value: '4 passing' },
+  { icon: 'check' as IconName, label: 'Security and privacy tests', value: '8 passing' },
   { icon: 'hash' as IconName, label: 'Runtime', value: 'Local proof mode' },
 ]
 
@@ -56,6 +56,10 @@ const faqs = [
   {
     question: 'What becomes public?',
     answer: 'Only the selected policy, its yes or no result, issuer verification status and a proof ID.',
+  },
+  {
+    question: 'Can I verify a copied receipt after refreshing?',
+    answer: 'Not in local proof mode. Verification only trusts receipts sealed in the current in-memory session, so a refreshed or different browser correctly fails closed until Midnight ledger verification is connected.',
   },
   {
     question: 'Does VeilPass upload my credential?',
@@ -121,7 +125,7 @@ export function LandingSections({ onStartProof }: LandingSectionsProps) {
             </div>
           ))}
         </div>
-        <p className="evidence-note">The Compact policy is real and compiled. This browser build evaluates the same disclosure boundary locally while Preprod wallet and proof server wiring remains the next integration step.</p>
+        <p className="evidence-note">The Compact policy is real and compiled. The local verifier rejects fabricated, modified and cross-session receipts while Preprod wallet and proof server wiring remains the next integration step.</p>
       </section>
 
       <section className="faq-section section-shell" data-reveal aria-labelledby="faq-heading">

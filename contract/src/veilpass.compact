@@ -26,15 +26,17 @@ witness getPrivateCredential(): PrivateCredential;
 export pure circuit deriveProofId(
     credential: PrivateCredential,
     currentYear: Uint<16>,
-    minimumAge: Uint<16>
+    minimumAge: Uint<16>,
+    policyId: Uint<16>
 ): ProofId {
     const birthYearHash = persistentHash<Uint<16>>(credential.birthYear);
-    return persistentHash<[Bytes<17>, Bytes<32>, Bytes<32>, Uint<16>, Uint<16>]>([
+    return persistentHash<[Bytes<17>, Bytes<32>, Bytes<32>, Uint<16>, Uint<16>, Uint<16>]>([
         "veilpass:proof:v1",
         birthYearHash,
         credential.nonce,
         currentYear,
-        minimumAge
+        minimumAge,
+        policyId
     ]) as ProofId;
 }
 
@@ -51,7 +53,7 @@ export circuit createEligibilityProof(
 
     const cutoffYear = currentYear - minimumAge;
     const eligible = credential.issuerVerified && credential.birthYear <= cutoffYear;
-    const proofId = deriveProofId(credential, currentYear, minimumAge);
+    const proofId = deriveProofId(credential, currentYear, minimumAge, policyId);
     const receipt = ProofReceipt {
         eligible: eligible,
         policyId: policyId,

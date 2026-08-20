@@ -51,11 +51,11 @@ export function ProofReceipt({ proof, state, copyStatus, onCopy }: ProofReceiptP
       <div className="private-confirmation"><Icon name="eyeOff" /><span>Birth year stays private</span></div>
       <button className="secondary-action" type="button" onClick={onCopy}>
         <Icon name={copyStatus === 'copied' ? 'check' : 'link'} />
-        <span>{copyStatus === 'copied' ? 'Verification link copied' : copyStatus === 'error' ? 'Select the link below' : 'Copy verification link'}</span>
+        <span>{copyStatus === 'copied' ? 'Local receipt link copied' : copyStatus === 'error' ? 'Select the link below' : 'Copy local receipt link'}</span>
       </button>
       {copyStatus === 'error' && (
         <div className="copy-fallback">
-          <label htmlFor="manual-proof-link">Verification link fallback</label>
+          <label htmlFor="manual-proof-link">Local receipt link fallback</label>
           <textarea
             id="manual-proof-link"
             value={proof.verificationLink}

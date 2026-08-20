@@ -291,7 +291,8 @@ p, dd { text-wrap: pretty; }
 .verify-form .primary-action { margin-top: var(--s24); }
 .verification-result { display: flex; flex-direction: column; }
 .verification-result.is-ready { align-items: stretch; justify-content: flex-start; text-align: left; background: #fbfffd; }
-.verification-result.is-ready > .result-icon { align-self: flex-start; }
+.verification-result.is-ready > .result-icon, .verification-result.is-rejected > .result-icon { align-self: flex-start; }
+.verification-result.is-rejected { align-items: stretch; justify-content: flex-start; text-align: left; background: #fff9f8; box-shadow: inset 3px 0 0 var(--danger); }
 .verification-result .receipt-facts { width: 100%; margin-top: var(--s24); }
 .demo-disclaimer { margin-top: auto; padding-top: var(--s24); }
 .activity-table-wrap { overflow: hidden; border: 1px solid var(--line-strong); border-radius: 8px; }
@@ -344,9 +345,10 @@ p, dd { text-wrap: pretty; }
 @media (max-width: 760px) {
   .section-shell, .secondary-view { width: min(100% - var(--s32), 680px); }
   .app-header { grid-template-columns: auto 1fr; padding-inline: var(--s16); }
+  .brand { min-height: 44px; }
   .brand span { font-size: 1rem; }
   .primary-nav { justify-self: end; gap: var(--s2); }
-  .nav-item { min-height: var(--s40); padding-inline: var(--s8); }
+  .nav-item { min-width: 44px; min-height: 44px; padding-inline: var(--s8); }
   .nav-item:first-child span { display: none; }
   .header-actions { display: none; }
   .hero-section { min-height: auto; padding-block: var(--s64); }
@@ -395,7 +397,8 @@ p, dd { text-wrap: pretty; }
   .final-cta button { width: 100%; }
   .site-footer { padding: var(--s48) var(--s16) var(--s24); }
   .footer-top, .site-footer nav { align-items: flex-start; flex-direction: column; }
-  .site-footer nav { gap: var(--s16); }
+  .site-footer nav { gap: var(--s8); }
+  .site-footer nav a { display: inline-flex; align-items: center; min-height: 44px; }
   .legal-notes { grid-template-columns: 1fr; }
   .tech-strip { grid-template-columns: 1fr; }
   .tech-item + .tech-item { border-top: 1px solid var(--line); border-left: 0; }
