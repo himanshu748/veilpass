@@ -25,12 +25,13 @@ The private inputs stay with the prover. Only the policy result, policy identifi
 
 - A conversion-focused landing page that explains the privacy boundary before asking for a proof
 - A responsive React interface for creating an age-eligibility proof
-- An honest Local proof mode that mirrors the Compact policy without retaining the birth year
-- A local receipt-link format that contains only public fields
-- A fail-closed verifier backed by a trusted in-memory receipt registry
-- An in-memory activity log containing no private credential data
+- Generated Compact contract code executed directly in the browser
+- An in-memory Compact ledger containing only public receipt fields
+- A same-session receipt-link format with fail-closed authentication
+- A verifier that rejects fabricated, modified and cross-session receipts
+- A session activity log containing no private credential data
 - A Compact contract with a private credential witness and public receipt ledger
-- Eight tests covering age boundaries, privacy leakage, forged links and policy collisions
+- Ten tests covering generated contract execution, ledger state, age boundaries, privacy leakage and receipt tampering
 - A production Vite build
 
 ## Privacy Boundary
@@ -42,28 +43,20 @@ The private inputs stay with the prover. Only the policy result, policy identifi
 | Credential payload | Issuer-verification result |
 |  | Proof identifier and timestamp |
 
-The browser demo never writes a birth year or nonce into its public proof object, receipt link or in-memory activity log. The Compact circuit follows the same separation: `getPrivateCredential()` supplies private witness data while `proofs` stores only `ProofReceipt` values.
-
-## Security Model
-
-Local proof mode does not pretend that a formatted URL is a cryptographic proof. A receipt is accepted only when its identifier and every disclosed field match a record sealed in the current in-memory session. Fabricated, modified, duplicated-field and cross-session receipts fail closed.
-
-The Compact contract derives each proof identifier from the private credential, public policy inputs and `policyId`. Two policies evaluated against the same credential therefore remain distinct ledger entries.
-
-Production trust requires Midnight ledger reads and proof verification. The local registry is a transparent prototype boundary, not a replacement for that network integration.
+The browser never writes a birth year or nonce into its public receipt object, receipt link or session activity log. It calls the generated Compact binding directly: `getPrivateCredential()` supplies private witness data while `proofs` stores only `ProofReceipt` values.
 
 ## Project Structure
 
 ```text
 veilpass/
 ├── contract/src/veilpass.compact       # Compact privacy contract
-├── contract/src/veilpass.test.ts        # Ledger policy-collision regression test
 ├── docs/hackathon-build/               # Scope, spec, thesis and build journal
 ├── public/veilpass-mark.png             # Generated brand asset
 ├── src/components/                     # Focused product UI components
-├── src/lib/proof.ts                    # Local proof and parser logic
-├── src/lib/proof.test.ts               # Privacy-sensitive unit tests
-└── src/App.tsx                         # View composition and session state
+├── src/lib/compact.ts                  # Generated Compact runtime adapter
+├── src/lib/proof.ts                    # Receipt creation and fail-closed parser
+├── src/lib/proof.test.ts               # Privacy and tamper-resistance tests
+└── src/App.tsx                         # View composition and trusted session state
 ```
 
 ## Run the Browser Prototype
@@ -79,12 +72,11 @@ Open `http://127.0.0.1:5173`.
 
 To exercise the complete flow:
 
-1. Enter a birth year and create an eligibility proof.
-2. Copy the local receipt link.
-3. Open Verify without refreshing and paste the link.
-4. Open Activity and confirm that no private credential fields appear.
-
-Refreshing clears the trusted receipt registry. A receipt from an earlier or different session is intentionally rejected in local proof mode.
+1. Enter a birth year, choose an issuer state and execute the eligibility circuit.
+2. Inspect the public receipt written to the local Compact ledger.
+3. Select **Authenticate this receipt** to run the same-session verifier.
+4. Modify any receipt field and confirm that authentication fails closed.
+5. Open Activity and confirm that no private credential fields appear.
 
 ## Compile the Midnight Contract
 
@@ -101,7 +93,7 @@ Expected result:
 Compiling 1 circuits:
 ```
 
-Generated contract artifacts are written to `contract/src/managed/veilpass/`. The JavaScript and TypeScript contract bindings used by the regression test are committed, while proving keys, verification keys and intermediate compiler artifacts remain ignored.
+Generated contract artifacts are written to `contract/src/managed/veilpass/` and intentionally ignored by Git.
 
 ## Verify the Build
 
@@ -113,23 +105,25 @@ npm run contract:compile
 
 ## Midnight Integration
 
-The Compact circuit is real and compiles locally. The browser currently uses an explicit Local proof mode because this machine does not have Docker, a running Midnight proof server or a connected Lace wallet.
+The browser imports the compiler-generated Compact binding and executes `createEligibilityProof` against an in-memory Compact ledger. The eligibility result and proof identifier come from the contract runtime rather than duplicated TypeScript policy logic.
+
+This Wave 1 path is a real Compact execution, but it is not a generated zero-knowledge proof or a Preprod transaction. Network deployment requires:
 
 A live Preprod integration requires:
 
 1. A Midnight proof server
 2. A funded Lace wallet configured for Preprod
 3. A deployed VeilPass contract address
-4. A Midnight.js adapter that maps the form to the generated `createEligibilityProof` circuit binding
+4. A Midnight.js provider adapter that submits the existing generated `createEligibilityProof` binding
 5. Ledger reads for the resulting `ProofReceipt`
 
 Midnight's current official examples use Compact 0.31.x with Midnight.js 4.1.x. Useful references include the [ZK loan example](https://github.com/midnightntwrk/example-zkloan), [bulletin-board template](https://github.com/midnightntwrk/example-bboard) and [Midnight documentation](https://docs.midnight.network/).
 
 ## Known Limitations
 
-- The browser receipt is a local product simulation, not a cryptographic proof.
-- The issuer is simulated as trusted. No production credential issuer is connected.
-- Verification authenticates only against the current in-memory receipt registry and rejects cross-session links.
+- The browser executes the generated contract locally, but does not generate a zero-knowledge proof.
+- The selectable issuer state is a transparent test fixture. No production credential issuer is connected.
+- Authentication is scoped to the in-memory Compact ledger for the current browser session, not a Preprod ledger lookup.
 - The age policy uses the UTC calendar year rather than a full date of birth.
 - The project has not been deployed to Midnight Preprod.
 
@@ -139,8 +133,8 @@ Midnight's current official examples use Compact 0.31.x with Midnight.js 4.1.x. 
 - The Compact contract compiles successfully.
 - The repository is licensed under Apache License 2.0.
 - The public repository carries the required `midnightntwrk` topic.
-- The responsive browser demo is deployed publicly on Netlify.
-- The slide deck and final 52.4-second demo video are included in the submission kit.
+- The responsive browser demo is deployed publicly on Netlify and is ready for a runtime refresh.
+- The slide deck and demo-video source are included in the submission kit.
 - Final submission on AKINDO remains a manual confirmation step.
 
 ## License

@@ -1,0 +1,228 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>VeilPass | AKINDO Submission Kit</title>
+    <style>
+      :root {
+        color-scheme: dark;
+        --canvas: #090b12;
+        --panel: #111522;
+        --panel-2: #171c2b;
+        --ink: #f7f8fc;
+        --muted: #a9b0c4;
+        --line: #2b3143;
+        --violet: #7c5cff;
+        --mint: #23c9a6;
+        --amber: #f5bd58;
+      }
+
+      * { box-sizing: border-box; }
+      body {
+        margin: 0;
+        background: var(--canvas);
+        color: var(--ink);
+        font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        line-height: 1.55;
+      }
+      a { color: #b9abff; }
+      button { font: inherit; }
+      .shell { width: min(1180px, calc(100% - 36px)); margin: 0 auto; }
+      .hero { padding: 72px 0 44px; border-bottom: 1px solid var(--line); }
+      .eyebrow { margin: 0 0 18px; color: var(--mint); font-size: 12px; font-weight: 800; letter-spacing: .16em; text-transform: uppercase; }
+      h1 { max-width: 980px; margin: 0; font-size: clamp(52px, 8vw, 104px); line-height: .92; letter-spacing: -.065em; }
+      .tagline { max-width: 760px; margin: 28px 0 0; color: var(--muted); font-size: clamp(19px, 2.4vw, 28px); }
+      .status-row { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 30px; }
+      .status { padding: 7px 11px; border: 1px solid var(--line); border-radius: 999px; color: var(--muted); font-size: 13px; }
+      .status.ready { border-color: rgba(35, 201, 166, .45); color: var(--mint); }
+      .status.blocked { border-color: rgba(245, 189, 88, .42); color: var(--amber); }
+      main { padding: 42px 0 80px; }
+      .grid { display: grid; grid-template-columns: minmax(0, 1.7fr) minmax(280px, .8fr); gap: 24px; align-items: start; }
+      .stack { display: grid; gap: 24px; }
+      .card { padding: 28px; background: linear-gradient(145deg, var(--panel), #0d1019); border: 1px solid var(--line); border-radius: 18px; }
+      .card h2 { margin: 0 0 16px; font-size: 19px; letter-spacing: -.02em; }
+      .card h3 { margin: 24px 0 8px; font-size: 14px; color: var(--mint); letter-spacing: .08em; text-transform: uppercase; }
+      .card p { margin: 0 0 14px; color: #d6daE6; }
+      .card p:last-child { margin-bottom: 0; }
+      .field { position: relative; padding: 20px 52px 20px 20px; background: var(--panel-2); border: 1px solid var(--line); border-radius: 12px; }
+      .field + .field { margin-top: 12px; }
+      .copy { position: absolute; top: 12px; right: 12px; width: 30px; height: 30px; border: 1px solid var(--line); border-radius: 8px; background: #0e121d; color: var(--ink); cursor: pointer; }
+      .copy:hover { border-color: var(--violet); }
+      :is(a, button):focus-visible { outline: 3px solid var(--mint); outline-offset: 3px; }
+      .label { display: block; margin-bottom: 7px; color: var(--muted); font-size: 11px; font-weight: 800; letter-spacing: .12em; text-transform: uppercase; }
+      ul { margin: 0; padding-left: 20px; }
+      li + li { margin-top: 8px; }
+      .links { display: grid; gap: 10px; }
+      .link-row { display: flex; justify-content: space-between; gap: 14px; padding: 12px 0; border-bottom: 1px solid var(--line); }
+      .link-row:last-child { border-bottom: 0; }
+      .link-row span { color: var(--muted); }
+      .value-ready { color: var(--mint); }
+      .value-pending { color: var(--amber); }
+      .boundary { display: grid; grid-template-columns: 1fr 52px 1fr; gap: 14px; align-items: stretch; margin-top: 18px; }
+      .boundary > div { padding: 16px; background: var(--panel-2); border: 1px solid var(--line); border-radius: 12px; }
+      .boundary .arrow { display: grid; place-items: center; padding: 0; color: var(--mint); font-size: 24px; background: transparent; border: 0; }
+      .boundary strong { display: block; margin-bottom: 8px; color: var(--violet); font-size: 12px; letter-spacing: .1em; }
+      .checklist { list-style: none; padding: 0; }
+      .checklist li { display: grid; grid-template-columns: 18px 1fr; gap: 9px; }
+      .checklist .done { color: var(--mint); }
+      .checklist .todo { color: var(--amber); }
+      .fine { color: var(--muted) !important; font-size: 13px; }
+      code { color: #d8d0ff; }
+      @media (max-width: 850px) {
+        .grid { grid-template-columns: 1fr; }
+        .hero { padding-top: 46px; }
+      }
+      @media (max-width: 600px) {
+        .shell { width: min(100% - 22px, 1180px); }
+        .card { padding: 20px; }
+        .boundary { grid-template-columns: 1fr; }
+        .boundary .arrow { transform: rotate(90deg); min-height: 28px; }
+      }
+    </style>
+  </head>
+  <body>
+    <header class="hero">
+      <div class="shell">
+        <p class="eyebrow">Midnight Buildathon · AKINDO submission kit</p>
+        <h1>VeilPass</h1>
+        <p class="tagline">Prove eligibility without revealing the private credential used to reach the answer.</p>
+        <div class="status-row">
+          <span class="status ready">Product ready</span>
+          <span class="status ready">Compact compiles</span>
+          <span class="status ready">10 tests pass</span>
+          <span class="status ready">Deck ready</span>
+          <span class="status ready">Live demo deployed</span>
+          <span class="status ready">GitHub ready</span>
+          <span class="status ready">Video ready</span>
+        </div>
+      </div>
+    </header>
+
+    <main class="shell">
+      <div class="grid">
+        <div class="stack">
+          <section class="card">
+            <h2>Copy-ready submission fields</h2>
+            <div class="field" data-copy>
+              <span class="label">Project name</span>VeilPass
+              <button class="copy" aria-label="Copy project name">⧉</button>
+            </div>
+            <div class="field" data-copy>
+              <span class="label">Tagline</span>Prove eligibility without revealing the private credential used to reach the answer.
+              <button class="copy" aria-label="Copy tagline">⧉</button>
+            </div>
+            <div class="field" data-copy>
+              <span class="label">Short description</span>VeilPass turns a private credential into a minimal public eligibility receipt. A user evaluates an age policy locally. The verifier receives the result, policy, issuer-verification state and proof ID, never the birth year.
+              <button class="copy" aria-label="Copy short description">⧉</button>
+            </div>
+          </section>
+
+          <section class="card">
+            <h2>Full project description</h2>
+            <div class="field" data-copy>Age gates and eligibility checks routinely collect more identity data than a decision requires. A verifier may need only a yes-or-no answer, yet users are often asked to expose a full birth date or identity document. That creates avoidable breach risk, retention obligations and user distrust.<br /><br />VeilPass demonstrates a narrower disclosure model. A user supplies a birth year locally, selects a test issuer state and evaluates the policy “Age is 18 or older?” Compiler-generated Compact code returns a minimal receipt containing the result, policy identifier, issuer-verification state and proof identifier. The birth year, credential payload and nonce remain private.<br /><br />The conversion-focused landing experience makes this boundary visible before the working proof lab, then reinforces it through a sealed aperture, fail-closed current-session verifier and public-only activity log. Under the interface, a Compact contract receives a PrivateCredential through a private witness and writes only a ProofReceipt to its in-memory Compact ledger. The contract compiles with Compact 0.31.1. Ten automated tests cover age boundaries, private-field leakage, forged links, malformed fields, cross-session receipts and policy binding.<br /><br />The browser imports the compiler-generated bindings, executes createEligibilityProof through the Compact runtime and authenticates receipts only when every disclosed field matches the trusted same-session ledger entry. This is real Compact execution, but not yet zero-knowledge proof generation or a Preprod transaction. The next milestone is to connect Lace, a proof server, a deployed Preprod contract and a real credential issuer.<br /><br />Selective disclosure can extend beyond age checks to membership, licensing, compliance and healthcare eligibility. VeilPass shows how a business can learn the policy answer it needs without becoming a database of sensitive identity facts.
+              <button class="copy" aria-label="Copy full description">⧉</button>
+            </div>
+          </section>
+
+          <section class="card">
+            <h2>Midnight implementation</h2>
+            <p>The Compact circuit receives <code>PrivateCredential</code> through <code>getPrivateCredential()</code>. It evaluates the age policy inside the circuit and discloses only <code>ProofReceipt</code>.</p>
+            <div class="boundary">
+              <div><strong>PRIVATE WITNESS</strong>Birth year<br />Credential payload<br />Proof nonce</div>
+              <div class="arrow" aria-hidden="true">→</div>
+              <div><strong>PUBLIC RECEIPT</strong>Eligible<br />Policy ID<br />Issuer verified<br />Proof ID</div>
+            </div>
+            <h3>Engineering evidence</h3>
+            <ul>
+              <li>One Compact circuit compiles successfully</li>
+              <li>Eight security and privacy tests pass</li>
+              <li>The local receipt link carries public fields only</li>
+              <li>Fabricated, modified and cross-session receipts fail closed</li>
+              <li>The activity log stores no birth year, credential payload or nonce</li>
+              <li>The UI distinguishes generated Compact execution from proof-server and Preprod status</li>
+            </ul>
+          </section>
+
+          <section class="card">
+            <h2>Judge demo path</h2>
+            <ol>
+              <li>Create an age-eligibility receipt from the private local form.</li>
+              <li>Inspect the sealed proof state and the minimal public receipt.</li>
+              <li>Copy the local receipt link and authenticate it on Verify without refreshing.</li>
+              <li>Open Activity and confirm that private credential fields are absent.</li>
+              <li>Modify one receipt field and confirm that verification fails closed.</li>
+              <li>Review <code>contract/src/veilpass.compact</code> and run all ten tests.</li>
+            </ol>
+            <h3>Local verification</h3>
+            <div class="field"><code>npm install<br />npm test<br />npm run contract:compile<br />npm run dev</code></div>
+          </section>
+        </div>
+
+        <aside class="stack">
+          <section class="card">
+            <h2>Submission links</h2>
+            <div class="links">
+              <div class="link-row"><span>Deck</span><a href="VeilPass-AKINDO-Deck.pptx">Open PPTX</a></div>
+              <div class="link-row"><span>Desktop screenshot</span><a href="veilpass-desktop-final.png">Open PNG</a></div>
+              <div class="link-row"><span>Mobile screenshot</span><a href="veilpass-mobile-final.png">Open PNG</a></div>
+              <div class="link-row"><span>GitHub</span><a href="https://github.com/himanshu748/veilpass">Open repo</a></div>
+              <div class="link-row"><span>Live demo</span><a href="https://veilpass-midnight.netlify.app">Open site</a></div>
+              <div class="link-row"><span>Demo video</span><a href="VeilPass-demo.mp4">Open MP4</a></div>
+            </div>
+          </section>
+
+          <section class="card">
+            <h2>Team</h2>
+            <p><strong>Himanshu Jha</strong><br />Product, design and engineering</p>
+            <p class="fine">Confirm account registration, public display name and team membership before the final manual AKINDO submit action.</p>
+          </section>
+
+          <section class="card">
+            <h2>Known limitations</h2>
+            <ul>
+              <li>The browser executes generated Compact code locally, without zero-knowledge proof generation</li>
+              <li>No production credential issuer is connected</li>
+              <li>No Lace wallet or Preprod deployment is included yet</li>
+              <li>The verifier authenticates only against the current in-memory receipt registry</li>
+              <li>Cross-session links intentionally fail closed until Midnight ledger verification is connected</li>
+              <li>The calendar-year policy needs a full-date replacement for production</li>
+            </ul>
+          </section>
+
+          <section class="card">
+            <h2>Final checklist</h2>
+            <ul class="checklist">
+              <li><span class="done">✓</span><span>Product workflow complete</span></li>
+              <li><span class="done">✓</span><span>Conversion landing experience complete</span></li>
+              <li><span class="done">✓</span><span>Compact circuit compiled</span></li>
+              <li><span class="done">✓</span><span>Automated tests passing</span></li>
+              <li><span class="done">✓</span><span>Deck created and inspected</span></li>
+              <li><span class="done">✓</span><span>Public GitHub repository published with required topic</span></li>
+              <li><span class="done">✓</span><span>Live demo published and verified on Netlify</span></li>
+              <li><span class="done">✓</span><span>Final 43.5-second demo video synchronized with the Compact runtime build</span></li>
+              <li><span class="done">✓</span><span>Live demo verified at desktop and mobile sizes</span></li>
+              <li><span class="todo">○</span><span>Confirm AKINDO's final upload fields after Wave 1 opens</span></li>
+              <li><span class="todo">○</span><span>Submit personally through the registered account; automated entry tools are prohibited</span></li>
+            </ul>
+          </section>
+        </aside>
+      </div>
+    </main>
+
+    <script>
+      document.querySelectorAll("[data-copy]").forEach((field) => {
+        const button = field.querySelector(".copy");
+        button?.addEventListener("click", async () => {
+          const clone = field.cloneNode(true);
+          clone.querySelector(".copy")?.remove();
+          clone.querySelector(".label")?.remove();
+          clone.querySelectorAll("br").forEach((node) => node.replaceWith("\n"));
+          await navigator.clipboard.writeText(clone.textContent.trim());
+          button.textContent = "✓";
+          window.setTimeout(() => { button.textContent = "⧉"; }, 1200);
+        });
+      });
+    </script>
+  </body>
+</html>

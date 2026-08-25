@@ -5,11 +5,20 @@ import { Icon } from './Icon'
 interface ProofFormProps {
   isCreating: boolean
   birthYear: string
+  issuerVerified: boolean
   onBirthYearChange: (value: string) => void
+  onIssuerVerifiedChange: (value: boolean) => void
   onSubmit: () => void
 }
 
-export function ProofForm({ isCreating, birthYear, onBirthYearChange, onSubmit }: ProofFormProps) {
+export function ProofForm({
+  isCreating,
+  birthYear,
+  issuerVerified,
+  onBirthYearChange,
+  onIssuerVerifiedChange,
+  onSubmit,
+}: ProofFormProps) {
   const errorId = useId()
   const [touched, setTouched] = useState(false)
   const currentYear = new Date().getUTCFullYear()
@@ -33,8 +42,8 @@ export function ProofForm({ isCreating, birthYear, onBirthYearChange, onSubmit }
       <label htmlFor="credential">Private credential</label>
       <div className="field-with-icon">
         <Icon name="credential" />
-        <select id="credential" defaultValue="national-id" disabled={isCreating}>
-          <option value="national-id">National ID (Civic)</option>
+        <select id="credential" defaultValue="test-credential" disabled={isCreating}>
+          <option value="test-credential">Local test credential</option>
         </select>
       </div>
 
@@ -54,14 +63,20 @@ export function ProofForm({ isCreating, birthYear, onBirthYearChange, onSubmit }
         onBlur={() => setTouched(true)}
       />
       <span id={errorId} className="field-message" aria-live="polite">
-        {visibleError ?? 'Used locally to evaluate the policy.'}
+        {visibleError ?? 'Passed to the private Compact witness only.'}
       </span>
 
       <label htmlFor="issuer">Issuer</label>
       <div className="field-with-icon">
         <Icon name="shield" />
-        <select id="issuer" defaultValue="civic" disabled={isCreating}>
-          <option value="civic">Civic Registry</option>
+        <select
+          id="issuer"
+          value={issuerVerified ? 'verified' : 'unverified'}
+          disabled={isCreating}
+          onChange={(event) => onIssuerVerifiedChange(event.target.value === 'verified')}
+        >
+          <option value="verified">Verified test issuer</option>
+          <option value="unverified">Unverified test issuer</option>
         </select>
       </div>
 
@@ -80,7 +95,7 @@ export function ProofForm({ isCreating, birthYear, onBirthYearChange, onSubmit }
 
       <div className="privacy-note">
         <Icon name="lock" />
-        <span>Your data stays on this device</span>
+        <span>Private witness data stays in memory</span>
       </div>
     </form>
   )

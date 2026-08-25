@@ -6,7 +6,7 @@ The event brief prioritizes working Compact code, private-state handling, tests 
 
 ## Design
 
-The generated concept established a technical-instrument composition centered on a privacy aperture. The implementation may change the network status copy from "Ready on Midnight testnet" to an honest local-simulation state until a live wallet and proof server are connected.
+The generated concept established a technical-instrument composition centered on a privacy aperture. The active implementation labels generated Compact execution separately from Preprod proof generation so the interface never overstates the network state.
 
 ## Verification Plan
 

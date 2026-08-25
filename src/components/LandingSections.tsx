@@ -23,31 +23,31 @@ const steps = [
   {
     icon: 'user' as IconName,
     title: 'Enter a private fact',
-    body: 'Choose a credential, issuer and policy. The birth year is evaluated locally.',
+    body: 'Choose a test credential, issuer state and policy. The birth year enters the private witness.',
   },
   {
     icon: 'shield' as IconName,
-    title: 'Evaluate the policy',
-    body: 'The compiled Compact circuit defines what may become public.',
+    title: 'Execute the Compact circuit',
+    body: 'Generated contract code evaluates the witness and writes only the disclosed receipt fields.',
   },
   {
     icon: 'send' as IconName,
-    title: 'Share the minimum',
-    body: 'The verifier matches public fields against a sealed record from this session.',
+    title: 'Authenticate the minimum',
+    body: 'The verifier matches the policy, result, issuer status and proof ID to the local Compact ledger.',
   },
 ]
 
 const evidence = [
-  { icon: 'code' as IconName, label: 'Compact contract', value: '0.31.1' },
-  { icon: 'shield' as IconName, label: 'Compiled circuit', value: '1' },
-  { icon: 'check' as IconName, label: 'Security and privacy tests', value: '8 passing' },
-  { icon: 'hash' as IconName, label: 'Runtime', value: 'Local proof mode' },
+  { icon: 'code' as IconName, label: 'Compact toolchain', value: '0.31.1' },
+  { icon: 'shield' as IconName, label: 'Generated circuit', value: 'Browser active' },
+  { icon: 'check' as IconName, label: 'Verifier', value: 'Fail closed' },
+  { icon: 'hash' as IconName, label: 'Ledger', value: 'Local Compact' },
 ]
 
 const faqs = [
   {
     question: 'Is this connected to Midnight Preprod?',
-    answer: 'Not yet. The contract compiles against Compact 0.31.1, while the current browser flow is a local simulation of the same policy boundary.',
+    answer: 'Not yet. The browser executes the generated Compact 0.31.1 contract locally. Preprod still requires Lace, a proof server and a deployed contract address.',
   },
   {
     question: 'What stays private?',
@@ -55,15 +55,11 @@ const faqs = [
   },
   {
     question: 'What becomes public?',
-    answer: 'Only the selected policy, its yes or no result, issuer verification status and a proof ID.',
-  },
-  {
-    question: 'Can I verify a copied receipt after refreshing?',
-    answer: 'Not in local proof mode. Verification only trusts receipts sealed in the current in-memory session, so a refreshed or different browser correctly fails closed until Midnight ledger verification is connected.',
+    answer: 'Only the selected policy, its yes or no result, issuer verification status and the Compact-derived proof ID.',
   },
   {
     question: 'Does VeilPass upload my credential?',
-    answer: 'No. This demo has no account, backend or upload step.',
+    answer: 'No. The test credential is supplied to an in-memory Compact witness. This Wave 1 build has no account, backend or upload step.',
   },
   {
     question: 'What is needed for production?',
@@ -125,7 +121,7 @@ export function LandingSections({ onStartProof }: LandingSectionsProps) {
             </div>
           ))}
         </div>
-        <p className="evidence-note">The Compact policy is real and compiled. The local verifier rejects fabricated, modified and cross-session receipts while Preprod wallet and proof server wiring remains the next integration step.</p>
+        <p className="evidence-note">This is not a handwritten policy mock. The browser imports the compiler-generated contract binding, executes <span className="mono">createEligibilityProof</span> and reads the resulting public Compact ledger entry. Network proof generation remains the next milestone.</p>
       </section>
 
       <section className="faq-section section-shell" data-reveal aria-labelledby="faq-heading">
@@ -163,7 +159,7 @@ export function LandingSections({ onStartProof }: LandingSectionsProps) {
           </nav>
         </div>
         <div className="legal-notes">
-          <p id="privacy-note"><strong>Privacy:</strong> Private form values stay in this browser session. VeilPass has no account, backend or upload step in local proof mode.</p>
+          <p id="privacy-note"><strong>Privacy:</strong> Private form values enter an in-memory Compact witness and are not written to the public receipt. VeilPass has no account, backend or upload step in this Wave 1 build.</p>
           <p id="terms-note"><strong>Terms:</strong> This is a Midnight Buildathon prototype for evaluation and is not a production identity service.</p>
         </div>
         <p className="footer-note">Midnight Buildathon prototype</p>

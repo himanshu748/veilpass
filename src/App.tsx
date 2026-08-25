@@ -28,9 +28,12 @@ function NotFound() {
 function App() {
   const [view, setView] = useState<AppView>('create')
   const [birthYear, setBirthYear] = useState('1998')
+  const [issuerVerified, setIssuerVerified] = useState(true)
   const [proofState, setProofState] = useState<ProofState>('idle')
   const [proof, setProof] = useState<PublicProof | null>(null)
   const [proofs, setProofs] = useState<PublicProof[]>([])
+  const [proofError, setProofError] = useState('')
+  const [verificationDraft, setVerificationDraft] = useState('')
   const [copyStatus, setCopyStatus] = useState<'idle' | 'copied' | 'error'>('idle')
 
   useEffect(() => {
@@ -38,26 +41,9 @@ function App() {
     if (['create', 'verify', 'activity'].includes(fromHash)) setView(fromHash)
   }, [])
 
-  useEffect(() => {
-    if (view !== 'create' || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
-    const elements = Array.from(document.querySelectorAll<HTMLElement>('[data-reveal]'))
-    const observer = new IntersectionObserver(
-      (entries) => entries.forEach((entry) => {
-        if (entry.isIntersecting) {
-          entry.target.classList.add('is-revealed')
-          observer.unobserve(entry.target)
-        }
-      }),
-      { rootMargin: '0px 0px -12% 0px', threshold: 0.12 },
-    )
-    elements.forEach((element) => observer.observe(element))
-    return () => observer.disconnect()
-  }, [view])
-
   const changeView = (next: AppView) => {
     setView(next)
     window.history.replaceState(null, '', `#${next}`)
-    window.scrollTo({ top: 0, behavior: 'auto' })
   }
 
   const scrollToSection = (id: string) => {
@@ -75,18 +61,28 @@ function App() {
 
   const createProof = async () => {
     setProofState('creating')
+    setProof(null)
+    setProofError('')
     setCopyStatus('idle')
     try {
-      const [created] = await Promise.all([
-        createEligibilityProof({ birthYear: Number(birthYear), issuer: 'Civic Registry' }),
-        new Promise((resolve) => window.setTimeout(resolve, 780)),
-      ])
+      const created = await createEligibilityProof({
+        birthYear: Number(birthYear),
+        issuer: 'VeilPass Test Issuer',
+        issuerVerified,
+      })
       setProof(created)
       setProofs((current) => [created, ...current.filter((item) => item.id !== created.id)])
       setProofState('ready')
-    } catch {
+    } catch (reason) {
+      setProofError(reason instanceof Error ? reason.message : 'The Compact circuit could not execute.')
       setProofState('error')
     }
+  }
+
+  const authenticateProof = () => {
+    if (!proof) return
+    setVerificationDraft(proof.verificationLink)
+    changeView('verify')
   }
 
   const copyVerificationLink = async () => {
@@ -123,18 +119,18 @@ function App() {
           <section className="hero-section section-shell" aria-labelledby="hero-heading">
             <div className="hero-copy">
               <h1 id="hero-heading">Prove eligibility without giving away identity.</h1>
-              <p>Turn a private credential into a locally sealed yes or no receipt. Your birth year stays on this device.</p>
+              <p>Execute a private eligibility policy through generated Compact code. Only the public receipt reaches the local ledger.</p>
               <div className="hero-actions">
                 <button className="primary-action hero-primary" type="button" onClick={startProof}><Icon name="shield" />Create a private proof</button>
                 <button className="text-action" type="button" onClick={() => scrollToSection('how-it-works')}>See how it works <Icon name="arrowRight" /></button>
               </div>
-              <p className="proof-signal"><Icon name="shield" />Compact 0.31.1 <span>·</span> 1 compiled circuit <span>·</span> 8 security and privacy tests</p>
+              <p className="proof-signal"><Icon name="shield" />Compact 0.31.1 <span>·</span> Generated runtime <span>·</span> Tested ledger</p>
             </div>
 
             <div className="hero-aperture" aria-label="Private fields are converted into a public proof receipt">
               <div className="hero-private-fields">
                 <span><Icon name="user" /><span><small>Birth year</small><strong>1998</strong></span></span>
-                <span><Icon name="shield" /><span><small>Issuer</small><strong>Civic Registry</strong></span></span>
+                <span><Icon name="shield" /><span><small>Issuer</small><strong>Verified test issuer</strong></span></span>
                 <span><Icon name="verify" /><span><small>Policy</small><strong>Age is 18 or older</strong></span></span>
               </div>
               <div className="hero-seal"><Icon name="check" /><strong>PROOF SEALED</strong><span>PUBLIC RECEIPT READY</span></div>
@@ -151,20 +147,24 @@ function App() {
               <ProofForm
                 isCreating={proofState === 'creating'}
                 birthYear={birthYear}
+                issuerVerified={issuerVerified}
                 onBirthYearChange={setBirthYear}
+                onIssuerVerifiedChange={setIssuerVerified}
                 onSubmit={createProof}
               />
-              <PrivacyAperture birthYear={birthYear} proof={proof} state={proofState} />
+              <PrivacyAperture birthYear={birthYear} issuerVerified={issuerVerified} proof={proof} state={proofState} />
               <ProofReceipt
                 proof={proof}
                 state={proofState}
+                errorMessage={proofError}
                 copyStatus={copyStatus}
                 onCopy={copyVerificationLink}
+                onVerify={authenticateProof}
               />
             </div>
 
-            <div className="section-shell"><TechStrip proof={proof} />
-              <p className="prototype-note">The policy runs locally in this browser. Preprod proof generation still requires a wallet, deployed contract and proof server.</p>
+            <div className="section-shell"><TechStrip proof={proof} proofCount={proofs.length} />
+              <p className="prototype-note">The browser executes the generated Compact contract and reads its in-memory ledger. Zero-knowledge proof generation and Preprod submission require Lace, a proof server and a deployed contract.</p>
             </div>
           </section>
 
@@ -172,7 +172,7 @@ function App() {
         </main>
       )}
 
-      {view === 'verify' && <div id="main-content"><VerifyPanel proofs={proofs} /></div>}
+      {view === 'verify' && <div id="main-content"><VerifyPanel trustedProofs={proofs} initialValue={verificationDraft} /></div>}
       {view === 'activity' && <div id="main-content"><ActivityPanel proofs={proofs} onCreate={startProof} /></div>}
     </div>
   )

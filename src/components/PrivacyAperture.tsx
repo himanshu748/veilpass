@@ -3,16 +3,18 @@ import { Icon } from './Icon'
 
 interface PrivacyApertureProps {
   birthYear: string
+  issuerVerified: boolean
   proof: PublicProof | null
   state: ProofState
 }
 
-export function PrivacyAperture({ birthYear, proof, state }: PrivacyApertureProps) {
+export function PrivacyAperture({ birthYear, issuerVerified, proof, state }: PrivacyApertureProps) {
   const isActive = state === 'creating'
   const isReady = Boolean(proof) && state === 'ready'
+  const hasError = state === 'error'
 
   return (
-    <section className={`aperture-stage${isActive ? ' is-active' : ''}${isReady ? ' is-ready' : ''}`} aria-label="Private proof transformation">
+    <section className={`aperture-stage${isActive ? ' is-active' : ''}${isReady ? ' is-ready' : ''}${hasError ? ' is-error' : ''}`} aria-label="Private Compact circuit execution">
       <div className="private-data-column" aria-hidden="true">
         <span className="flow-label private-color">Private inputs</span>
         <div className="private-data-item">
@@ -21,7 +23,7 @@ export function PrivacyAperture({ birthYear, proof, state }: PrivacyApertureProp
         </div>
         <div className="private-data-item">
           <span className="round-icon"><Icon name="shield" /></span>
-          <span><small>Issuer</small><strong>Civic Registry</strong></span>
+          <span><small>Test issuer</small><strong>{issuerVerified ? 'Verified' : 'Unverified'}</strong></span>
         </div>
         <div className="private-data-item">
           <span className="round-icon"><Icon name="verify" /></span>
@@ -34,9 +36,9 @@ export function PrivacyAperture({ birthYear, proof, state }: PrivacyApertureProp
         <div className="circuit-lines private-lines" />
         <div className="aperture-core">
           <div className="core-ticks" />
-          <Icon name={isReady ? 'check' : 'lock'} />
-          <span>{isActive ? 'GENERATING' : isReady ? 'PROOF SEALED' : 'ZERO KNOWLEDGE'}</span>
-          <small>{isReady ? 'PUBLIC RECEIPT READY' : 'PRIVATE CIRCUIT'}</small>
+          <Icon name={isReady ? 'check' : hasError ? 'question' : 'lock'} />
+          <span>{isActive ? 'EXECUTING' : isReady ? 'LEDGER UPDATED' : hasError ? 'CIRCUIT ERROR' : 'COMPACT CIRCUIT'}</span>
+          <small>{isReady ? 'PUBLIC RECEIPT READY' : 'PRIVATE WITNESS'}</small>
         </div>
         <div className="circuit-lines public-lines" />
       </div>

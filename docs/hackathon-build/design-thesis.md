@@ -24,7 +24,9 @@ Media strategy: The working product interface is the evidence. No stock photogra
 
 Signature moment: Violet private signals pass through a thin vertical aperture and emerge as one green public result. The page repeats the same idea in a word-by-word reveal: “Share the answer. Keep the evidence private.”
 
-Runtime honesty: The Compact 0.31.1 contract is real and compiled. The browser is labeled “Local proof mode” until a funded Lace wallet, deployed contract address, proof server and Midnight.js adapter are wired to Preprod.
+Runtime honesty: The browser executes the generated Compact 0.31.1 contract code against a local in-memory Compact ledger. It never calls the handwritten policy simulator. The interface labels this as local Compact execution and reserves “zero-knowledge proof” or “Preprod verified” for a future Lace, proof-server and deployed-contract integration.
+
+Completion decision: Wave 1 demonstrates the complete local contract path rather than presenting an untestable wallet shell. A judge can create a receipt, inspect the generated ledger result, authenticate it in the same session and see forged or modified receipts fail closed. Preprod submission is the next milestone, not a hidden dependency of the current demo.
 
 Three cliches to avoid: Gradient-card hero layouts, generic bento grids and glassmorphism.
 

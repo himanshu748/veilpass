@@ -7,15 +7,18 @@ export interface PublicProof {
   eligible: boolean
   policyId: 'age-18'
   policyLabel: 'Age ≥ 18'
-  issuer: 'Civic Registry'
+  issuer: 'VeilPass Test Issuer'
   issuerVerified: boolean
   createdAt: string
   verificationLink: string
-  executionMode: 'local-simulation'
+  executionMode: 'compact-runtime'
+  circuit: 'createEligibilityProof'
+  ledgerEntry: number
 }
 
 export interface ProofInput {
   birthYear: number
   issuer: PublicProof['issuer']
+  issuerVerified: boolean
   currentYear?: number
 }

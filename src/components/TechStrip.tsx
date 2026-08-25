@@ -4,22 +4,23 @@ import { Icon } from './Icon'
 
 interface TechStripProps {
   proof: PublicProof | null
+  proofCount: number
 }
 
-export function TechStrip({ proof }: TechStripProps) {
+export function TechStrip({ proof, proofCount }: TechStripProps) {
   return (
     <section className="tech-strip" aria-label="Technical proof details">
       <div className="tech-item">
         <Icon name="code" />
-        <span><small>Contract</small><strong className="mono">Compiled · 1 circuit</strong></span>
+        <span><small>Circuit</small><strong className="mono">createEligibilityProof</strong></span>
       </div>
       <div className="tech-item">
         <Icon name="hash" />
         <span><small>Proof ID</small><strong className="mono">{proof ? shortenProofId(proof.id) : 'Pending'}</strong></span>
       </div>
       <div className="tech-item">
-        <Icon name="globe" />
-        <span><small>Network</small><strong className="mono">Midnight Preprod target</strong></span>
+        <Icon name="activity" />
+        <span><small>Local ledger</small><strong className="mono">{proofCount} {proofCount === 1 ? 'entry' : 'entries'}</strong></span>
       </div>
     </section>
   )

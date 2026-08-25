@@ -1,17 +1,12 @@
 import type { ProofInput, PublicProof } from '../types'
+import { browserCompactRuntime, type VeilPassCompactRuntime } from './compact'
 
-const MINIMUM_AGE = 18
 const MINIMUM_BIRTH_YEAR = 1900
 const RECEIPT_FIELDS = ['eligible', 'policy', 'issuer', 'verified', 'created'] as const
 const RECEIPT_FIELD_SET = new Set<string>(RECEIPT_FIELDS)
 
 const toHex = (bytes: Uint8Array) =>
   Array.from(bytes, (byte) => byte.toString(16).padStart(2, '0')).join('')
-
-const sha256 = async (value: string) => {
-  const digest = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(value))
-  return toHex(new Uint8Array(digest))
-}
 
 export const validateBirthYear = (birthYear: number, currentYear: number) => {
   if (!Number.isInteger(birthYear)) return 'Enter a four-digit birth year.'
@@ -23,35 +18,43 @@ export const validateBirthYear = (birthYear: number, currentYear: number) => {
 export const createEligibilityProof = async (
   input: ProofInput,
   nonceOverride?: Uint8Array,
+  runtime: VeilPassCompactRuntime = browserCompactRuntime,
 ): Promise<PublicProof> => {
   const currentYear = input.currentYear ?? new Date().getUTCFullYear()
   const validationError = validateBirthYear(input.birthYear, currentYear)
   if (validationError) throw new Error(validationError)
 
   const nonce = nonceOverride ?? crypto.getRandomValues(new Uint8Array(32))
-  const id = await sha256(
-    `veilpass:proof:v1:${input.birthYear}:${input.issuer}:${currentYear}:${toHex(nonce)}`,
+  const execution = runtime.executeAgePolicy(
+    {
+      birthYear: BigInt(input.birthYear),
+      issuerVerified: input.issuerVerified,
+      nonce,
+    },
+    currentYear,
   )
+  const id = toHex(execution.proofId)
   const createdAt = new Date().toISOString()
-  const eligible = input.birthYear <= currentYear - MINIMUM_AGE
   const params = new URLSearchParams({
-    eligible: eligible ? '1' : '0',
+    eligible: execution.receipt.eligible ? '1' : '0',
     policy: 'age-18',
-    issuer: 'civic-registry',
-    verified: '1',
+    issuer: 'veilpass-test-issuer',
+    verified: execution.receipt.issuerVerified ? '1' : '0',
     created: createdAt,
   })
 
   return {
     id,
-    eligible,
+    eligible: execution.receipt.eligible,
     policyId: 'age-18',
     policyLabel: 'Age ≥ 18',
-    issuer: 'Civic Registry',
-    issuerVerified: true,
+    issuer: input.issuer,
+    issuerVerified: execution.receipt.issuerVerified,
     createdAt,
     verificationLink: `veilpass://proof/v1/${id}?${params.toString()}`,
-    executionMode: 'local-simulation',
+    executionMode: 'compact-runtime',
+    circuit: 'createEligibilityProof',
+    ledgerEntry: execution.ledgerEntryCount,
   }
 }
 
@@ -63,7 +66,7 @@ export const parseVerificationLink = (
   try {
     link = new URL(value.trim())
   } catch {
-    throw new Error('Paste a valid VeilPass verification link.')
+    throw new Error('Paste a valid VeilPass receipt link.')
   }
 
   const segments = link.pathname.split('/').filter(Boolean)
@@ -77,10 +80,8 @@ export const parseVerificationLink = (
     !link.hash &&
     segments.length === 2 &&
     segments[0] === 'v1'
-  if (!hasExactRoute) {
-    throw new Error('This link is not a VeilPass v1 proof.')
-  }
-  if (!/^[a-f0-9]{64}$/.test(id)) throw new Error('The proof identifier is malformed.')
+  if (!hasExactRoute) throw new Error('This link is not a VeilPass v1 receipt.')
+  if (!/^[a-f0-9]{64}$/.test(id)) throw new Error('The receipt identifier is malformed.')
 
   const queryKeys = [...link.searchParams.keys()]
   const fieldsAreExact =
@@ -94,22 +95,22 @@ export const parseVerificationLink = (
   if (!['0', '1'].includes(eligibleValue ?? '') || !['0', '1'].includes(verifiedValue ?? '')) {
     throw new Error('The receipt fields are malformed.')
   }
-  if (link.searchParams.get('policy') !== 'age-18') throw new Error('The proof policy is unsupported.')
-  if (link.searchParams.get('issuer') !== 'civic-registry') throw new Error('The proof issuer is unsupported.')
+  if (link.searchParams.get('policy') !== 'age-18') throw new Error('The receipt policy is unsupported.')
+  if (link.searchParams.get('issuer') !== 'veilpass-test-issuer') throw new Error('The receipt issuer is unsupported.')
 
   const createdAt = link.searchParams.get('created') ?? ''
-  if (Number.isNaN(Date.parse(createdAt))) throw new Error('The proof timestamp is malformed.')
+  if (Number.isNaN(Date.parse(createdAt))) throw new Error('The receipt timestamp is malformed.')
 
   const trustedProof = trustedProofs.find((proof) => proof.id === id)
-  if (!trustedProof) throw new Error('No trusted proof record matches this receipt.')
+  if (!trustedProof) throw new Error('No local Compact ledger entry matches this receipt.')
 
   const fieldsMatch =
     (eligibleValue === '1') === trustedProof.eligible &&
     trustedProof.policyId === 'age-18' &&
-    trustedProof.issuer === 'Civic Registry' &&
+    trustedProof.issuer === 'VeilPass Test Issuer' &&
     (verifiedValue === '1') === trustedProof.issuerVerified &&
     createdAt === trustedProof.createdAt
-  if (!fieldsMatch) throw new Error('Receipt fields do not match the trusted proof record.')
+  if (!fieldsMatch) throw new Error('Receipt fields do not match the local Compact ledger entry.')
 
   return trustedProof
 }

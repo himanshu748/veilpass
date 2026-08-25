@@ -43,9 +43,9 @@ export function Header({ view, onChange, onStartProof, onHowItWorks }: HeaderPro
       </nav>
 
       <div className="header-actions">
-        <div className="runtime-status" title="The Compact contract is compiled. This browser evaluates the policy locally until Preprod services are connected.">
+        <div className="runtime-status" title="The generated Compact 0.31.1 contract executes locally and writes to an in-memory Compact ledger.">
           <span className="status-dot" />
-          <span>Local proof mode</span>
+          <span>Compact runtime active</span>
         </div>
         <button className="header-cta" type="button" onClick={onStartProof}>Create a private proof</button>
       </div>
